@@ -3,6 +3,7 @@ namespace Concrete\Block\CoreConversation;
 use Loader;
 use \Concrete\Core\Block\BlockController;
 use Concrete\Core\Conversation\Conversation;
+use Concrete\Core\Conversation\Message\MessageList;
 use Concrete\Core\Feature\ConversationFeatureInterface;
 use Concrete\Core\Http\ResponseAssetGroup;
 use Config;
@@ -35,6 +36,22 @@ use Page;
 
 		public function getBlockTypeName() {
 			return t("Conversation");
+		}
+
+		public function getSearchableContent() {
+			$ml = new MessageList();
+			$ml->filterByConversation($this->getConversationObject());
+			$messages = $ml->get();
+			if (!count($messages)) {
+				return '';
+			}
+
+			$content = '';
+			foreach ($messages as $message) {
+				$content = $message->getConversationMessageSubject() . ' ' .
+				           strip_tags($message->getConversationMessageBody()) . ' ';
+			}
+			return rtrim($content);
 		}
 
 		public function getConversationFeatureDetailConversationObject() {
